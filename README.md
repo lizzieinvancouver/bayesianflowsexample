@@ -1,4 +1,4 @@
-Example of simple Bayesian workflow.
+# Example of simple Bayesian workflow
 
 See the example via example.html
 
