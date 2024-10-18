@@ -1,6 +1,6 @@
 # Example of simple Bayesian workflow
 
-See the example via example.html
+See the example via [example.html](https://github.com/lizzieinvancouver/bayesianflowsexample/blob/main/example.html)
 
 Download repo and run example.Rmd (requires R Markdown)
 
