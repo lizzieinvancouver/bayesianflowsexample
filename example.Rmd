@@ -55,9 +55,9 @@ options(mc.cores = parallel::detectCores())
 data{
 int<lower=0> N;     // number of total observations
 int<lower=0> Nspp;  // number of species (grouping factor)
-int species[N];     // species identity, coded as int
+array[N] int species;   // species identity, coded as int
 vector[N] year;     // year of data point (predictor for slope)
-real y[N];      // day of year of phenological event (response)
+array[N] real y;        // day of year of phenological event (response)
 }
 
 parameters{
@@ -66,13 +66,13 @@ real<lower=0> sigma_a;  // variation of intercept across species
 real mu_b;      // mean slope across species
 real<lower=0> sigma_b;  // variation of slope across species
 real<lower=0> sigma_y;  // measurement error, noise etc.    
-real a[Nspp];       //the intercept for each species
-real b[Nspp];       //the slope for each species 
+vector[Nspp] a;         //the intercept for each species
+vector[Nspp] b;         //the slope for each species 
 
 }
 
 transformed parameters{
-real ypred[N];
+array[N] real ypred;
 for (i in 1:N){
     ypred[i]=a[species[i]]+b[species[i]]*year[i];
 }
@@ -88,7 +88,7 @@ sigma_a ~ normal(0,20);
 mu_b ~ normal(0,5);
 sigma_b ~ normal(0,15);
 sigma_y ~ normal(0,15);
-}   
+}    
 ```
 
 ### Step 2: Check your model on simulated data
@@ -271,17 +271,22 @@ for (j in 1:Nspp)
 hist(y, xlab="Day of year", col="plum3", main="Data from posterior means")
 ```
 
-Okay, but that's just one new draw from our posteuior, so it could be an outlier. To address this, these retrodictive checks should be done with many draws. To do this, you need to decide on what summary statistics matter because you cannot just look at each plot. Below we take the standard deviation of y (using the means, but we could and should also consider using other draws of the posterior):
+Okay, but that's just one new draw from our posterior and we used just the mean, so we are not getting a good sense of what the model shows. To address this, these retrodictive checks should be done with many draws. To do this, you need to decide on what summary statistics matter because you cannot just look at each plot. Below we take the standard deviation of y (using the means, but we could and should also consider using other draws of the posterior):
 ```{r}
 # Create the data using new a and b for each of the species, simshere times
 simshere <- 1000
+# Randomly sample the iterations (we have 4000 here).
+iterations <- sample(1:4000, simshere, replace = FALSE)
+# Create an empty matrix to get the resulting output 
 y.sd100 <- matrix(0, ncol=simshere, nrow=Nspp)
+# For this version, let's use the species-level intercepts and slopes (e.g., syncmodelhispost[["b"]]) ...
 for (i in 1:simshere){
+    iterhere <- iterations[i]
     for (n in 1:N){
         s <- species[n]
-        ypred[n] <- a[s] + b[s]*year[n] 
+        ypred[n] <- syncmodelhispost[["a"]][iterhere,s]+ syncmodelhispost[["b"]][iterhere,s]*year[n] 
     }
-  y <- rnorm(N, ypred, sigma_y)
+  y <- rnorm(N, ypred, syncmodelhispost[["sigma_y"]][iterhere])
   y.df <- as.data.frame(cbind(y, species))
   y.sd <- aggregate(y.df["y"], y.df["species"], FUN=sd)
   y.sd100[,i] <- y.sd[,2] 
