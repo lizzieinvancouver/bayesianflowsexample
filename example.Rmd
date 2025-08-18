@@ -90,7 +90,7 @@ for (i in 1:N){
 model{  
 b ~ normal(mu_b, sigma_b); // this creates the partial pooling on slopes
 a ~ normal(mu_a, sigma_a); // this creates the partial pooling on intercepts
-y ~ normal(ypred, sigma_y); // this creates an error model where error is normally distributed
+y ~ normal(ypred, sigma_y); // this creates an error model that is normally distributed
 // Priors ...
 mu_a ~ normal(100,30);
 sigma_a ~ normal(0,20);
@@ -157,12 +157,15 @@ for (sp in 1:Nspp)
 
 Now that we have a simulated dataset and code for the underlying model in Stan, we can run the model on the simulated data to check how well the model returns the parameters we set.
 ```{r}
-fit <- stan("stan/twolevelhierslopeint.stan", data=c("N","y","Nspp","species","year"), iter=1000, chains=4, seed=377)
+fit <- stan("stan/twolevelhierslopeint.stan", data=c("N","y","Nspp","species","year"), 
+    iter=1000, chains=4, seed=377)
 
 # grep stan output
 sumer <- summary(fit)$summary
-muparams <- sumer[grep("mu", rownames(sumer)), c("mean", "2.5%", "25%", "50%", "75%", "97.5%")]
-sigmaparams <- sumer[grep("sigma", rownames(sumer)), c("mean", "2.5%","25%", "50%", "75%", "97.5%")]
+muparams <- sumer[grep("mu", rownames(sumer)), 
+    c("mean", "2.5%", "25%", "50%", "75%", "97.5%")]
+sigmaparams <- sumer[grep("sigma", rownames(sumer)), 
+    c("mean", "2.5%","25%", "50%", "75%", "97.5%")]
 
 # compare given versus modeled
 paramsgiven # here's the parameters we set
@@ -174,7 +177,8 @@ We can also look at the species-level estimates. Since there are many we will pl
 ```{r}
 spslopes <- sumer[grep("b\\[", rownames(sumer)), "mean"]
 
-plot(spslopes~species_trend, xlab="Given species-level slopes", ylab="Modeled species-level slopes", col="darkblue")
+plot(spslopes~species_trend, xlab="Given species-level slopes", 
+    ylab="Modeled species-level slopes", col="darkblue")
 abline(0,1)
 ```
 
@@ -228,8 +232,9 @@ y <- d$phenovalue
 Nspp <- length(unique(d$species)) #newid is character !
 species <- as.numeric(as.factor(d$species))
 year <- d$yr1981
-syncmodelhis <- stan("stan/twolevelhierslopeint.stan", data=c("N","Nspp","y","species","year"),
-                   iter=4000, warmup=3000, chains=4, cores=4, seed=777)
+syncmodelhis <- stan("stan/twolevelhierslopeint.stan", 
+    data=c("N","Nspp","y","species","year"),
+    iter=4000, warmup=3000, chains=4, cores=4, seed=777)
 ```
 
 ### Step 4: Check your model on data simulated from your empirical model output (also known as posterior retrodictive checks)
@@ -288,7 +293,8 @@ simshere <- 1000
 iterations <- sample(1:4000, simshere, replace = FALSE)
 # Create an empty matrix to get the resulting output 
 y.sd100 <- matrix(0, ncol=simshere, nrow=Nspp)
-# For this version, let's use the species-level intercepts and slopes (e.g., syncmodelhispost[["b"]]) ...
+# For this version, let's use the species-level intercepts and slopes 
+# (e.g., syncmodelhispost[["b"]]) ...
 for (i in 1:simshere){
     iterhere <- iterations[i]
     for (n in 1:N){
@@ -306,9 +312,11 @@ real.sd <- aggregate(d["phenovalue"], d[c("studyid", "species")],
     FUN=sd)
 
 par(mfrow=c(1,1))
+par(oma=c(4,3,3,1))
 hist(colMeans(y.sd100), col="plum3", breaks=20, xlim=c(10,14), 
     main="",
-    xlab="Mean SD of response from 1000 sim. datasets (purple) \n versus empirical data (pink)")
+    xlab="Mean SD of response from 1000 sim. datasets (purple) \n
+         versus empirical data (pink)")
 abline(v = mean(real.sd$phenovalue), col = "pink3", lwd = 2)
 ```
 
@@ -350,7 +358,8 @@ for (i in 1:simshere){
 par(mfrow=c(1,1))
 hist(colMeans(y.sd100), col="plum3", breaks=20, xlim=c(10,14), 
     main="",
-    xlab="Mean SD of response from 1000 sim. datasets (purple) \n versus empirical data (pink)")
+    xlab="Mean SD of response from 1000 sim. datasets (purple) \n 
+    versus empirical data (pink)")
 abline(v = mean(real.sd$phenovalue), col = "pink3", lwd = 2)
 ```
 
