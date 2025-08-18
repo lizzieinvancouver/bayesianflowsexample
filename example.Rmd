@@ -1,4 +1,13 @@
-# An example workflow
+---
+title: "| <span style='font-size: 30px'>Full workflow:\n| Trophic asynchrony and climate change\n"
+subtitle: "Steps 1-4 in a Bayesian framework
+\n From: A four-step simulation-based workflow for ecology"
+pagetitle: Full workflow
+output:
+  html_document: default
+  pdf_document: default
+---
+# An example of the full workflow
 
 Our simple example comes from a project aiming to estimate levels of trophic (a)synchrony with climate change. Using observational time-series data, we wanted to estimate changes in the relative timing of species pairs. Our first step was to obtain estimates of each species' change over time, which we review here. 
 
