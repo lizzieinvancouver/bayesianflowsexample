@@ -1,11 +1,11 @@
 ---
 title: "| <span style='font-size: 30px'>Full workflow:\n| Trophic asynchrony and climate change\n"
 subtitle: "Steps 1-4 in a Bayesian framework
-\n From: A four-step simulation-based workflow for ecology"
+\n From: A four-step simulation-based workflow for ecological analysis and science"
 pagetitle: Full workflow
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 # An example of the full workflow
 
